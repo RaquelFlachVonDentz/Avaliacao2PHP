@@ -3,6 +3,7 @@
 use App\Controllers\Admin\AdminController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\ProductController;
+use App\Controllers\Admin\ClientController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\AuthController;
 use App\Controllers\SiteController;
@@ -50,6 +51,18 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $rou
             $categories->addRoute('POST', '/update', [CategoryController::class, 'update']);
             $categories->addRoute('POST', '/delete', [CategoryController::class, 'delete']);
         });
+
+        // Clientes
+        $group->addGroup('/clients', function (FastRoute\RouteCollector $clients) {
+            $clients->addRoute('GET', '', [ClientController::class, 'index']);
+            $clients->addRoute('GET', '/create', [ClientController::class, 'create']);
+            $clients->addRoute('POST', '/store', [ClientController::class, 'store']);
+            $clients->addRoute('GET', '/show', [ClientController::class, 'show']);
+            $clients->addRoute('GET', '/edit', [ClientController::class, 'edit']);
+            $clients->addRoute('POST', '/update', [ClientController::class, 'update']);
+            $clients->addRoute('POST', '/delete', [ClientController::class, 'delete']);
+        });
+
 
         // Usuários
         $group->addGroup('/users', function (FastRoute\RouteCollector $users) {
