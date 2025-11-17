@@ -4,7 +4,7 @@
 <div class="card shadow-sm" id="formView">
     <?php $this->insert('partials/admin/form/header', ['title' => 'Novo Produto']) ?>
     <div class="card-body">
-        <form method="post" action="/admin/products/store" enctype="multipart/form-data" class="">
+        <form method="post" action="<?= $this->baseUrl('admin/products/store') ?>" enctype="multipart/form-data" class="">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="name" class="form-label">Nome</label>
@@ -58,7 +58,7 @@
                 <button type="reset" class="btn btn-secondary">
                     <i class="bi bi-x-lg"></i> Limpar
                 </button>
-                <a href="/admin/products" class="btn align-self-end">
+                <a href="<?= $this->baseUrl('admin/products') ?>" class="btn align-self-end">
                     <i class="bi bi-x-lg"></i> Cancelar
                 </a>
             </div>

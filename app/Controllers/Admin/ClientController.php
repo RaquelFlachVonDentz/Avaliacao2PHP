@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Url;
 use App\Core\View;
 use App\Repositories\ClientRepository;
 use App\Services\ClientService;
@@ -68,7 +69,7 @@ class ClientController
         $id = $this->repo->create($client);
 
         Flash::push("success", "Cliente criado com sucesso!");
-        return new RedirectResponse('/admin/clients/show?id=' . $id);
+        return new RedirectResponse(Url::to('admin/clients/show?id=' . $id));
     }
 
     public function show(Request $request): Response
@@ -125,7 +126,7 @@ class ClientController
         $this->repo->update($client);
 
         Flash::push("success", "Cliente atualizado com sucesso!");
-        return new RedirectResponse('/admin/clients/show?id=' . $client->id);
+        return new RedirectResponse(Url::to('admin/clients/show?id=' . $client->id));
     }
 
     public function delete(Request $request): Response
@@ -138,7 +139,7 @@ class ClientController
 
         if ($id <= 0) {
             Flash::push('danger', 'ID inválido para exclusão');
-            return new RedirectResponse('/admin/clients');
+            return new RedirectResponse(Url::to('admin/clients'));
         }
 
         $deleted = $this->repo->delete($id);
@@ -149,6 +150,6 @@ class ClientController
             Flash::push('danger', 'Falha ao excluir o cliente.');
         }
 
-        return new RedirectResponse('/admin/clients');
+        return new RedirectResponse(Url::to('admin/clients'));
     }
 }

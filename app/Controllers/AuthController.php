@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Url;
 use App\Core\View;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
@@ -37,24 +38,43 @@ class AuthController
 
         if (!$this->auth->attempt($email, $password)) {
             Flash::push('danger', 'Credenciais inválidas');
-            return new RedirectResponse('/auth/login');
+            return new RedirectResponse(Url::to('auth/login'));
         }
 
         Flash::push('success', 'Bem-vindo!');
-        return new RedirectResponse('/admin');
+        return new RedirectResponse(Url::to('admin'));
     }
 
     public function logout(): Response
     {
         $this->auth->logout();
         Flash::push('info', 'Sessão encerrada.');
-        return new RedirectResponse('/auth/login');
+        return new RedirectResponse(Url::to('auth/login'));
     }
 
     public function create(): Response
     {
-        $id = $this->auth->register('Teste', 'teste@teste.com', 'teste123');
-        Flash::push('info', 'Admin criado #' . $id);
-        return new RedirectResponse('/auth/login');
+        $email = 'teste@teste.com';
+        
+        // Verifica se o usuário já existe
+        $existingUser = $this->auth->getUserRepository()->findByEmail($email);
+        
+        if ($existingUser) {
+            Flash::push('info', 'Usuário de teste já existe! Use o e-mail: ' . $email . ' e senha: teste123 para fazer login.');
+        } else {
+            try {
+                $id = $this->auth->register('Teste', $email, 'teste123');
+                Flash::push('success', 'Usuário de teste criado com sucesso! ID: #' . $id);
+            } catch (\PDOException $e) {
+                // Se ainda assim der erro (duplicata), informa que já existe
+                if ($e->getCode() === '23000') {
+                    Flash::push('info', 'Usuário de teste já existe! Use o e-mail: ' . $email . ' e senha: teste123 para fazer login.');
+                } else {
+                    Flash::push('danger', 'Erro ao criar usuário: ' . $e->getMessage());
+                }
+            }
+        }
+        
+        return new RedirectResponse(Url::to('auth/login'));
     }
 }

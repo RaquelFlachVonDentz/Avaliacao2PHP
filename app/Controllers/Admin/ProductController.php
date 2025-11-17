@@ -2,6 +2,7 @@
 namespace App\Controllers\Admin;
 
 use App\Core\Csrf;
+use App\Core\Url;
 use App\Core\View;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ProductRepository;
@@ -52,7 +53,7 @@ class ProductController {
         $imagePath = $this->service->storeImage($file);
         $product = $this->service->make($request->request->all(), $imagePath);
         $id = $this->repo->create($product);
-        return new RedirectResponse('/admin/products/show?id=' . $id);
+        return new RedirectResponse(Url::to('admin/products/show?id=' . $id));
     }
 
     public function show(Request $request): Response {
@@ -86,13 +87,13 @@ class ProductController {
         $product = $this->service->make($data, $imagePath);
         if (!$product->id) return new Response('ID inválido', 422);
         $this->repo->update($product);
-        return new RedirectResponse('/admin/products/show?id=' . $product->id);
+        return new RedirectResponse(Url::to('admin/products/show?id=' . $product->id));
     }
 
     public function delete(Request $request): Response {
         if (!Csrf::validate($request->request->get('_csrf'))) return new Response('Token CSRF inválido', 419);
         $id = (int)$request->request->get('id', 0);
         if ($id > 0) $this->repo->delete($id);
-        return new RedirectResponse('/admin/products');
+        return new RedirectResponse(Url::to('admin/products'));
     }
 }

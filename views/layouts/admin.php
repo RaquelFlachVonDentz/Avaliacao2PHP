@@ -163,7 +163,7 @@ $auth = AuthService::user();
                     <div class="user-avatar"><?= strtoupper(substr($auth['name'], 0, 2)) ?></div>
                     <span id="usernameDisplay"><?= $this->e($auth['name']) ?></span>
                 </div>
-                <form class="d-inline" method="post" action="/auth/logout">
+                <form class="d-inline" method="post" action="<?= $this->baseUrl('auth/logout') ?>">
                     <?= \App\Core\Csrf::input() ?>
                     <button class="btn btn-outline-light btn-sm" id="btnLogout">
                         <i class="bi bi-box-arrow-right"></i> Sair
@@ -176,21 +176,29 @@ $auth = AuthService::user();
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <nav class="nav flex-column">
-            <a class="nav-link active" href="/admin" data-page="dashboard">
+            <a class="nav-link active" href="<?= $this->baseUrl('admin') ?>" data-page="dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
-            <a class="nav-link" href="/admin/users" data-page="users">
+            <a class="nav-link" href="<?= $this->baseUrl('admin/users') ?>" data-page="users">
                 <i class="bi bi-people"></i>
                 <span>Usuários</span>
             </a>
-            <a class="nav-link" href="/admin/products" data-page="products">
+            <a class="nav-link" href="<?= $this->baseUrl('admin/products') ?>" data-page="products">
                 <i class="bi bi-box-seam"></i>
                 <span>Produtos</span>
             </a>
-            <a class="nav-link" href="/admin/categories" data-page="categories">
+            <a class="nav-link" href="<?= $this->baseUrl('admin/categories') ?>" data-page="categories">
                 <i class="bi bi-box-seam"></i>
                 <span>Categorias</span>
+            </a>
+            <a class="nav-link" href="<?= $this->baseUrl('admin/clients') ?>" data-page="clients">
+                <i class="bi bi-person-badge"></i>
+                <span>Clientes</span>
+            </a>
+            <a class="nav-link" href="<?= $this->baseUrl('admin/orders') ?>" data-page="orders">
+                <i class="bi bi-cart-check"></i>
+                <span>Pedidos</span>
             </a>
         </nav>
     </aside>
@@ -202,7 +210,7 @@ $auth = AuthService::user();
             <h1 class="h2 fw-bold" id="pageTitle"><?= $this->e($title ?? '') ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="<?= $this->baseUrl('admin') ?>">Admin</a></li>
                     <li class="breadcrumb-item active" aria-current="page"><?= $this->e($title ?? '') ?></li>
                 </ol>
             </nav>

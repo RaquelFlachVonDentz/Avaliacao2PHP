@@ -4,7 +4,7 @@
 <div class="card shadow-sm" id="tableView">
     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
         <h5 class="mb-0 fw-semibold">Lista de Clientes</h5>
-        <a href="/admin/clients/create" class="btn btn-primary" id="btnNewClient">
+        <a href="<?= $this->baseUrl('admin/clients/create') ?>" class="btn btn-primary" id="btnNewClient">
             <i class="bi bi-plus-lg"></i> Novo Cliente
         </a>
     </div>
@@ -37,14 +37,14 @@
                         <td>
                             <div class="action-buttons">
                                 <a class="btn btn-sm btn-secondary btn-view"
-                                   href="/admin/clients/show?id=<?= $this->e($client['id']) ?>">
+                                   href="<?= $this->baseUrl('admin/clients/show?id=' . $this->e($client['id'])) ?>">
                                     <i class="bi bi-eye"></i> Ver
                                 </a>
                                 <a class="btn btn-sm btn-primary btn-edit"
-                                   href="/admin/clients/edit?id=<?= $this->e($client['id']) ?>">
+                                   href="<?= $this->baseUrl('admin/clients/edit?id=' . $this->e($client['id'])) ?>">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
-                                <form class="inline" action="/admin/clients/delete" method="post"
+                                <form class="inline" action="<?= $this->baseUrl('admin/clients/delete') ?>" method="post"
                                       onsubmit="return confirm('Tem certeza que deseja excluir este cliente? (<?= $this->e($client['name']) ?>)');">
                                     <input type="hidden" name="id" value="<?= $this->e($client['id']) ?>">
                                     <?= \App\Core\Csrf::input() ?>
@@ -77,7 +77,7 @@
         <?php if ($i == $page): ?>
             <strong>[<?= $i ?>]</strong>
         <?php else: ?>
-            <a href="/admin/clients?page=<?= $i ?>"><?= $i ?></a>
+            <a href="<?= $this->baseUrl('admin/clients?page=' . $i) ?>"><?= $i ?></a>
         <?php endif; ?>
     <?php endfor; ?>
 </div>

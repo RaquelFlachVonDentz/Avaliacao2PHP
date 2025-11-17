@@ -2,6 +2,7 @@
 
 namespace App\Middleware;
 
+use App\Core\Url;
 use App\Services\AuthService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -14,7 +15,7 @@ class AuthMiddleware
     public static function requireLogin(): ?RedirectResponse
     {
         if (!AuthService::check()) {
-            return new RedirectResponse('/auth/login');
+            return new RedirectResponse(Url::to('auth/login'));
         }
         return null; // sessão válida
     }

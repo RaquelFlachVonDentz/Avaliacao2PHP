@@ -63,22 +63,20 @@ class ClientService
 
     public function make(array $data): Client
     {
-        $client = new Client();
+        $id = isset($data['id']) ? (int)$data['id'] : null;
+        $name = trim($data['name'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $phone = $this->sanitizePhone($data['phone'] ?? '');
+        $city = trim($data['city'] ?? '');
+        $state = strtoupper(trim($data['state'] ?? ''));
+        $created_at = $data['created_at'] ?? '';
 
-        $client->id    = isset($data['id']) ? (int)$data['id'] : null;
-        $client->name  = trim($data['name'] ?? '');
-        $client->email = trim($data['email'] ?? '');
-        $client->phone = $this->sanitizePhone($data['phone'] ?? '');
-        $client->city  = trim($data['city'] ?? '');
-        $client->state = strtoupper(trim($data['state'] ?? ''));
-        $client->created_at = $data['created_at'] ?? null;
-
-        return $client;
+        return new Client($id, $name, $email, $phone, $city, $state, $created_at);
     }
 
     private function sanitizePhone(string $phone): string
     {
         $digits = preg_replace('/\D+/', '', $phone);
-        return $digits ?? '';
+        return $digits ?: '';
     }
 }

@@ -4,7 +4,7 @@
 <div class="card shadow-sm" id="tableView">
     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
         <h5 class="mb-0 fw-semibold">Lista de Categorias</h5>
-        <a href="/admin/categories/create" class="btn btn-primary" id="btnNewUser">
+        <a href="<?= $this->baseUrl('admin/categories/create') ?>" class="btn btn-primary" id="btnNewUser">
             <i class="bi bi-plus-lg"></i> Nova Categoria
         </a>
     </div>
@@ -28,14 +28,14 @@
                         <td>
                             <div class="action-buttons">
                                 <a class="btn btn-sm btn-secondary btn-edit"
-                                   href="/admin/categories/show?id=<?= $this->e($category['id']) ?>">
+                                   href="<?= $this->baseUrl('admin/categories/show?id=' . $this->e($category['id'])) ?>">
                                     <i class="bi bi-eye"></i> Ver
                                 </a>
                                 <a class="btn btn-sm btn-primary btn-edit"
-                                   href="/admin/categories/edit?id=<?= $this->e($category['id']) ?>">
+                                   href="<?= $this->baseUrl('admin/categories/edit?id=' . $this->e($category['id'])) ?>">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
-                                <form class="inline" action="/admin/categories/delete" method="post"
+                                <form class="inline" action="<?= $this->baseUrl('admin/categories/delete') ?>" method="post"
                                       onsubmit="return confirm('Tem certeza que deseja excluir esta categoria? (<?= $this->e($category['name']) ?>)');">
                                     <input type="hidden" name="id" value="<?= $this->e($category['id']) ?>">
                                     <?= \App\Core\Csrf::input() ?>

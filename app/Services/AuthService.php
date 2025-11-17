@@ -17,6 +17,11 @@ class AuthService
         $this->service = new UserService();
     }
 
+    public function getUserRepository(): UserRepository
+    {
+        return $this->repo;
+    }
+
     public function register(string $name, string $email, string $password): int
     {
         $data['name'] = $name;

@@ -4,7 +4,7 @@
 <div class="card shadow-sm" id="formView">
     <?php $this->insert('partials/admin/form/header', ['title' => 'Editar Cliente']) ?>
     <div class="card-body">
-        <form method="post" action="/admin/clients/update" enctype="multipart/form-data" class="">
+        <form method="post" action="<?= $this->baseUrl('admin/clients/update') ?>" enctype="multipart/form-data" class="">
             <input type="hidden" name="id" value="<?= $this->e($client['id']) ?>">
 
             <div class="row">
@@ -71,7 +71,7 @@
                 <button type="reset" class="btn btn-secondary">
                     <i class="bi bi-x-lg"></i> Limpar
                 </button>
-                <a href="/admin/clients" class="btn align-self-end">
+                <a href="<?= $this->baseUrl('admin/clients') ?>" class="btn align-self-end">
                     <i class="bi bi-x-lg"></i> Cancelar
                 </a>
             </div>

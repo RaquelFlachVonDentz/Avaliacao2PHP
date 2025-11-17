@@ -4,6 +4,7 @@ use App\Controllers\Admin\AdminController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\ClientController;
+use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\AuthController;
 use App\Controllers\SiteController;
@@ -63,6 +64,16 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $rou
             $clients->addRoute('POST', '/delete', [ClientController::class, 'delete']);
         });
 
+        // Pedidos
+        $group->addGroup('/orders', function (FastRoute\RouteCollector $orders) {
+            $orders->addRoute('GET', '', [OrderController::class, 'index']);
+            $orders->addRoute('GET', '/create', [OrderController::class, 'create']);
+            $orders->addRoute('POST', '/store', [OrderController::class, 'store']);
+            $orders->addRoute('GET', '/show', [OrderController::class, 'show']);
+            $orders->addRoute('GET', '/edit', [OrderController::class, 'edit']);
+            $orders->addRoute('POST', '/update', [OrderController::class, 'update']);
+            $orders->addRoute('POST', '/delete', [OrderController::class, 'delete']);
+        });
 
         // Usuários
         $group->addGroup('/users', function (FastRoute\RouteCollector $users) {
@@ -79,8 +90,23 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $rou
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
+
+// Remove query string
 if (false !== $pos = strpos($uri, '?')) $uri = substr($uri, 0, $pos);
 $uri = rawurldecode($uri);
+
+// Remove o diretório base do projeto quando está em uma subpasta do Apache
+// Ex: /Avaliacao2PHP/admin/clients -> /admin/clients
+$scriptPath = $_SERVER['SCRIPT_NAME']; // Ex: /Avaliacao2PHP/public/index.php
+if (strpos($scriptPath, '/public/') !== false) {
+    // Extrai o diretório base do projeto (ex: /Avaliacao2PHP)
+    $projectBase = substr($scriptPath, 0, strpos($scriptPath, '/public'));
+    // Remove o diretório base da URI se ela começar com ele
+    if ($projectBase !== '' && str_starts_with($uri, $projectBase)) {
+        $uri = substr($uri, strlen($projectBase));
+    }
+}
+if ($uri === '') $uri = '/';
 
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 $request = Request::createFromGlobals();

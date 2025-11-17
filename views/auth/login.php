@@ -13,7 +13,7 @@
                     <p class="text-muted">Faça login para acessar o painel administrativo</p>
                 </div>
                 <?php $this->insert('partials/admin/flash') ?>
-                <form id="loginForm" method="post" action="/auth/login">
+                <form id="loginForm" method="post" action="<?= $this->baseUrl('auth/login') ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">E-mail</label>
                         <input type="email" name="email" class="form-control" id="email" placeholder="Digite seu e-mail" required>

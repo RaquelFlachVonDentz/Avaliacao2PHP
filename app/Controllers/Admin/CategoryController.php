@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Url;
 use App\Core\View;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ProductRepository;
@@ -55,7 +56,7 @@ class CategoryController
         }
         $category = $this->service->make($request->request->all());
         $id = $this->repo->create($category);
-        return new RedirectResponse('/admin/categories/show?id=' . $id);
+        return new RedirectResponse(Url::to('admin/categories/show?id=' . $id));
     }
 
     public function show(Request $request): Response
@@ -89,7 +90,7 @@ class CategoryController
         $category = $this->service->make($data);
         if (!$category->id) return new Response('ID inválido', 422);
         $this->repo->update($category);
-        return new RedirectResponse('/admin/categories/show?id=' . $category->id);
+        return new RedirectResponse(Url::to('admin/categories/show?id=' . $category->id));
     }
 
     public function delete(Request $request): Response
@@ -98,13 +99,13 @@ class CategoryController
         $categories = $this->productRepo->findByCategoryId((int)$request->request->get('id', 0));
         if (count($categories) > 0) {
             Flash::push("danger", "Categoria não pode ser excluída");
-            return new RedirectResponse('/admin/categories');
+            return new RedirectResponse(Url::to('admin/categories'));
         }
 
 
         if (!Csrf::validate($request->request->get('_csrf'))) return new Response('Token CSRF inválido', 419);
         $id = (int)$request->request->get('id', 0);
         if ($id > 0) $this->repo->delete($id);
-        return new RedirectResponse('/admin/categories');
+        return new RedirectResponse(Url::to('admin/categories'));
     }
 }
