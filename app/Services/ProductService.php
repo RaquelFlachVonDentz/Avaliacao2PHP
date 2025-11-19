@@ -9,10 +9,12 @@ class ProductService {
         $errors = [];
         $name = trim($data['name'] ?? '');
         $price = $data['price'] ?? '';
+        $estoque = $data['estoque'] ?? '';
         $category_id = $data['category_id'] ?? '';
 
         if ($name === '') $errors['name'] = 'Nome é obrigatório';
         if (!is_numeric($price) || (float)$price <= 0) $errors['price'] = 'Preço deve ser numérico e maior que zero';
+        if ($estoque !== '' && (!is_numeric($estoque) || (int)$estoque < 0)) $errors['estoque'] = 'Estoque deve ser um número inteiro maior ou igual a zero';
         if ($category_id === '') $errors['category_id'] = 'Categoria é obrigatória';
 
         if ($file) {
@@ -41,8 +43,9 @@ class ProductService {
     public function make(array $data, ?string $imagePath = null): Product {
         $name = trim($data['name'] ?? '');
         $price = (float)($data['price'] ?? 0);
+        $estoque = (int)($data['estoque'] ?? 0);
         $category_id = (int)($data['category_id'] ?? 0);
         $id = isset($data['id']) ? (int)$data['id'] : null;
-        return new Product($id, $name, $price, $category_id, $imagePath);
+        return new Product($id, $name, $price, $estoque, $category_id, $imagePath);
     }
 }

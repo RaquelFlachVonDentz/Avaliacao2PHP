@@ -25,13 +25,13 @@ class ProductRepository {
         return $row ?: null;
     }
     public function create(Product $p): int {
-        $stmt = Database::getConnection()->prepare("INSERT INTO products (category_id, name, price, image_path) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$p->category_id, $p->name, $p->price, $p->image_path]);
+        $stmt = Database::getConnection()->prepare("INSERT INTO products (category_id, name, price, estoque, image_path) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$p->category_id, $p->name, $p->price, $p->estoque, $p->image_path]);
         return (int)Database::getConnection()->lastInsertId();
     }
     public function update(Product $p): bool {
-        $stmt = Database::getConnection()->prepare("UPDATE products SET category_id = ?, name = ?, price = ?, image_path = ? WHERE id = ?");
-        return $stmt->execute([$p->category_id, $p->name, $p->price, $p->image_path, $p->id]);
+        $stmt = Database::getConnection()->prepare("UPDATE products SET category_id = ?, name = ?, price = ?, estoque = ?, image_path = ? WHERE id = ?");
+        return $stmt->execute([$p->category_id, $p->name, $p->price, $p->estoque, $p->image_path, $p->id]);
     }
     public function delete(int $id): bool {
         $stmt = Database::getConnection()->prepare("DELETE FROM products WHERE id = ?");
@@ -47,5 +47,9 @@ class ProductRepository {
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row ?: [];
+    }
+    public function decreaseStock(int $productId, int $quantity): bool {
+        $stmt = Database::getConnection()->prepare("UPDATE products SET estoque = estoque - ? WHERE id = ? AND estoque >= ?");
+        return $stmt->execute([$quantity, $productId, $quantity]);
     }
 }

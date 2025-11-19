@@ -18,6 +18,7 @@
                     <th>Nome</th>
                     <th>Categoria</th>
                     <th>Preço</th>
+                    <th>Estoque</th>
                     <th>Criado em</th>
                     <th>Ações</th>
                 </tr>
@@ -37,6 +38,7 @@
                         <td><?= $this->e($product['name']) ?></td>
                         <td><?= $this->e($categories[$product['category_id']]) ?></td>
                         <td>R$ <?= number_format((float)$product['price'], 2, ',', '.') ?></td>
+                        <td><?= $this->e($product['estoque'] ?? 0) ?></td>
                         <td><?= $this->e($product['created_at'] ?? '') ?></td>
                         <td>
                             <div class="action-buttons">

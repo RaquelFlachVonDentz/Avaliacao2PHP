@@ -147,12 +147,37 @@ class OrderController
             return new Response($html, 422);
         }
 
+        // Busca o pedido atual antes de atualizar para verificar mudança de status
+        $currentOrder = $this->repo->find((int)$data['id']);
+        $oldStatus = $currentOrder['status'] ?? '';
+        $newStatus = trim($data['status'] ?? '');
+
         $order = $this->service->make($data);
         if (!$order->id) {
             return new Response('ID inválido', 422);
         }
 
         $this->repo->update($order);
+
+        // Se o status mudou para "entregue" e não estava entregue antes, diminui o estoque
+        if (strtolower($newStatus) === 'entregue' && strtolower($oldStatus) !== 'entregue') {
+            $items = $this->itemRepo->findByOrderId($order->id);
+            foreach ($items as $item) {
+                $productId = (int)$item['product_id'];
+                $quantity = (int)$item['quantity'];
+                
+                // Verifica se o produto existe e tem estoque suficiente
+                $product = $this->productRepo->find($productId);
+                if ($product) {
+                    $currentStock = (int)($product['estoque'] ?? 0);
+                    if ($currentStock >= $quantity) {
+                        $this->productRepo->decreaseStock($productId, $quantity);
+                    } else {
+                        Flash::push('warning', "Atenção: Produto '{$product['name']}' não tem estoque suficiente (disponível: {$currentStock}, necessário: {$quantity}).");
+                    }
+                }
+            }
+        }
 
         Flash::push("success", "Pedido atualizado com sucesso!");
         return new RedirectResponse(Url::to('admin/orders/show?id=' . $order->id));

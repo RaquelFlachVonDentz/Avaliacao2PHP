@@ -21,6 +21,11 @@
                     <input type="text" class="form-control"
                            value="R$ <?= number_format((float)$product['price'], 2, ',', '.') ?>" readonly>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Estoque:</strong></label>
+                    <input type="text" class="form-control"
+                           value="<?= $this->e($product['estoque'] ?? 0) ?>" readonly>
+                </div>
                 <?php if (!empty($product['image_path'])): ?>
                     <div class="mb-3">
                         <label class="form-label"><strong>Imagem:</strong></label><br>

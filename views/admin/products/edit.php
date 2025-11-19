@@ -24,6 +24,17 @@
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
+                    <label for="estoque" class="form-label">Estoque</label>
+                    <input type="number" class="form-control" id="estoque" name="estoque"
+                           placeholder="Digite a quantidade em estoque" value="<?= $this->e(($product['estoque'] ?? '0')) ?>" min="0" required>
+                    <?php if (!empty($errors['estoque'])): ?>
+                        <div class="text-danger"><?= $this->e($errors['estoque']) ?></div><?php endif; ?>
+                </div>
+                <div class="col-md-6 mb-3">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
                     <label for="formFile" class="form-label">Imagem (JPEG, PNG, WEBP) — substituir atual</label>
                     <?php if (!empty($product['image_path'])): ?>
                         <img class="d-block img-thumbnail ratio ratio-1x1" style="max-height: 200px;max-width: 200px" src="<?= $this->e($product['image_path']) ?>" alt=""><br>
@@ -41,7 +52,7 @@
                     <select class="form-select" id="category_id" name="category_id"  required>
                         <option value="">Selecione uma categoria</option>
                         <?php foreach ($categories as $category): ?>
-                            <option value="<?= $category['id'] ?>" <?= $this->e(($old['category_id'] ?? $product['category_id']) == $category['id'] ? 'selected' : '') ?>>
+                            <option value="<?= $category['id'] ?>" <?= $this->e(($product['category_id'] ?? '') == $category['id'] ? 'selected' : '') ?>>
                                 <?= $this->e($category['name']) ?>
                             </option>
                         <?php endforeach; ?>

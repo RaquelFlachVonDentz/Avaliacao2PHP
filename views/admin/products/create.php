@@ -23,6 +23,17 @@
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
+                    <label for="estoque" class="form-label">Estoque</label>
+                    <input type="number" class="form-control" id="estoque" name="estoque"
+                           placeholder="Digite a quantidade em estoque" value="<?= $this->e(($old['estoque'] ?? '0')) ?>" min="0" required>
+                    <?php if (!empty($errors['estoque'])): ?>
+                        <div class="text-danger"><?= $this->e($errors['estoque']) ?></div><?php endif; ?>
+                </div>
+                <div class="col-md-6 mb-3">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
                     <label for="formFile" class="form-label">Imagem (JPEG, PNG, WEBP) — opcional</label>
                     <input class="form-control" type="file" id="image" name="image" accept="image/*">
                     <?php if (!empty($errors['image'])): ?>
