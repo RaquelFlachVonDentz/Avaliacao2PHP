@@ -73,6 +73,10 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $rou
             $orders->addRoute('GET', '/edit', [OrderController::class, 'edit']);
             $orders->addRoute('POST', '/update', [OrderController::class, 'update']);
             $orders->addRoute('POST', '/delete', [OrderController::class, 'delete']);
+            // Rotas para itens do pedido
+            $orders->addRoute('POST', '/store-item', [OrderController::class, 'storeItem']);
+            $orders->addRoute('POST', '/update-item', [OrderController::class, 'updateItem']);
+            $orders->addRoute('POST', '/delete-item', [OrderController::class, 'deleteItem']);
         });
 
         // Usuários

@@ -6,6 +6,7 @@ use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\Url;
 use App\Core\View;
+use App\Models\OrderItem;
 use App\Repositories\ClientRepository;
 use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
@@ -95,10 +96,14 @@ class OrderController
         }
 
         $items = $this->itemRepo->findByOrderId($id);
+        $products = $this->productRepo->findAll();
 
         $html = $this->view->render('admin/orders/show', [
             'order' => $order,
-            'items' => $items
+            'items' => $items,
+            'products' => $products,
+            'csrf' => Csrf::token(),
+            'errors' => []
         ]);
         return new Response($html);
     }
@@ -175,6 +180,120 @@ class OrderController
         }
 
         return new RedirectResponse(Url::to('admin/orders'));
+    }
+
+    public function storeItem(Request $request): Response
+    {
+        if (!Csrf::validate($request->request->get('_csrf'))) {
+            return new Response('Token CSRF inválido', 419);
+        }
+
+        $orderId = (int)$request->request->get('order_id', 0);
+        $productId = (int)$request->request->get('product_id', 0);
+        $quantity = (int)$request->request->get('quantity', 0);
+        $unitPrice = (float)$request->request->get('unit_price', 0);
+
+        // Validações básicas
+        $errors = [];
+        if ($orderId <= 0) {
+            $errors[] = 'Pedido inválido';
+        }
+        if ($productId <= 0) {
+            $errors[] = 'Produto é obrigatório';
+        }
+        if ($quantity <= 0) {
+            $errors[] = 'Quantidade deve ser maior que zero';
+        }
+
+        // Se não forneceu preço ou é zero, busca do produto
+        if ($unitPrice <= 0) {
+            $product = $this->productRepo->find($productId);
+            if ($product) {
+                $unitPrice = (float)$product['price'];
+            } else {
+                $errors[] = 'Produto não encontrado';
+            }
+        }
+
+        // Valida preço final
+        if ($unitPrice <= 0 && empty($errors)) {
+            $errors[] = 'Preço unitário deve ser maior que zero';
+        }
+
+        if (!empty($errors)) {
+            Flash::push('danger', implode(', ', $errors));
+            return new RedirectResponse(Url::to('admin/orders/show?id=' . $orderId));
+        }
+
+        $item = new OrderItem(null, $orderId, $productId, $quantity, $unitPrice);
+        $this->itemRepo->create($item);
+
+        Flash::push('success', 'Item adicionado ao pedido com sucesso!');
+        return new RedirectResponse(Url::to('admin/orders/show?id=' . $orderId));
+    }
+
+    public function updateItem(Request $request): Response
+    {
+        if (!Csrf::validate($request->request->get('_csrf'))) {
+            return new Response('Token CSRF inválido', 419);
+        }
+
+        $id = (int)$request->request->get('id', 0);
+        $orderId = (int)$request->request->get('order_id', 0);
+        $productId = (int)$request->request->get('product_id', 0);
+        $quantity = (int)$request->request->get('quantity', 0);
+        $unitPrice = (float)$request->request->get('unit_price', 0);
+
+        // Validações
+        $errors = [];
+        if ($id <= 0) {
+            $errors[] = 'Item inválido';
+        }
+        if ($productId <= 0) {
+            $errors[] = 'Produto é obrigatório';
+        }
+        if ($quantity <= 0) {
+            $errors[] = 'Quantidade deve ser maior que zero';
+        }
+        if ($unitPrice <= 0) {
+            $errors[] = 'Preço unitário deve ser maior que zero';
+        }
+
+        if (!empty($errors)) {
+            Flash::push('danger', implode(', ', $errors));
+            return new RedirectResponse(Url::to('admin/orders/show?id=' . $orderId));
+        }
+
+        $item = new OrderItem($id, $orderId, $productId, $quantity, $unitPrice);
+        $this->itemRepo->update($item);
+
+        Flash::push('success', 'Item atualizado com sucesso!');
+        return new RedirectResponse(Url::to('admin/orders/show?id=' . $orderId));
+    }
+
+    public function deleteItem(Request $request): Response
+    {
+        if (!Csrf::validate($request->request->get('_csrf'))) {
+            return new Response('Token CSRF inválido', 419);
+        }
+
+        $id = (int)$request->request->get('id', 0);
+        $orderId = (int)$request->request->get('order_id', 0);
+
+        if ($id <= 0) {
+            Flash::push('danger', 'ID inválido para exclusão');
+            return new RedirectResponse(Url::to('admin/orders/show?id=' . $orderId));
+        }
+
+        $deleted = $this->itemRepo->delete($id);
+
+        if ($deleted) {
+            Flash::push('success', 'Item excluído com sucesso.');
+        } else {
+            Flash::push('danger', 'Falha ao excluir o item.');
+        }
+
+        return new RedirectResponse(Url::to('admin/orders/show?id=' . $orderId));
     }
 }
 
