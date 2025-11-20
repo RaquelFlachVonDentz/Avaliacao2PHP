@@ -1,0 +1,31 @@
+
+.bg-success {
+  --bs-bg-opacity: 6;
+  background-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important;
+} 
+
+.logo-circular {
+        width: 100px; /* Tamanho da logo */
+        height: auto;
+}
+
+/* Estilo para o botão do painel administrativo */
+.navbar .btn-primary {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.navbar .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 991px) {
+  .navbar .btn-primary {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Klaus Óculos - Seu Novo Estilo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="style.css">
   </head>
   <body>
 
     <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm sticky-top">
       <div class="container">
         <a class="navbar-brand" href="#">
-          <img src="/uploads/logo.png" alt="Logo da Klaus Óculos" class="logo-circular">
+          <img src="imagens/logo.png" alt="Logo da Klaus Óculos" class="logo-circular">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -52,28 +52,15 @@
       <div class="container">
         <h2 class="text-center mb-4">Confira nossos modelos</h2>
         <div class="row text-center">
-          <?php 
-          $products = $products ?? [];
-          $firstThree = array_slice($products, 0, 3);
-          if (empty($firstThree)): ?>
-            <div class="col-12">
-              <p class="text-muted">Nenhum produto cadastrado ainda.</p>
-            </div>
-          <?php else:
-          foreach ($firstThree as $product): 
-          ?>
           <div class="col-md-4 mb-3">
-            <?php if (!empty($product['image_path'])): ?>
-              <img src="<?= htmlspecialchars($product['image_path']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: contain;">
-            <?php else: ?>
-              <div class="bg-secondary rounded shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                <span class="text-white">Sem imagem</span>
-              </div>
-            <?php endif; ?>
+            <img src="imagens/oculos 1.png" alt="Óculos Modelo 3" class="img-fluid rounded shadow-sm">
           </div>
-          <?php 
-          endforeach;
-          endif; ?>
+          <div class="col-md-4 mb-3">
+            <img src="imagens/oculos 2.png" alt="Óculos Modelo 2" class="img-fluid rounded shadow-sm">
+          </div>
+          <div class="col-md-4 mb-3">
+            <img src="imagens/oculos 3.png" alt="Óculos Modelo 1" class="img-fluid rounded shadow-sm">
+          </div>
         </div>
       </div>
     </section>
@@ -85,37 +72,31 @@
           <table class="table table-striped table-hover table-bordered text-center">
             <thead class="table-dark">
               <tr>
-                <th>Imagem</th>
                 <th>Modelo</th>
-                <th>Categoria</th>
-                <th>Estoque</th>
+                <th>Tipo</th>
+                <th>Cor</th>
                 <th>Preço</th>
               </tr>
             </thead>
             <tbody>
-              <?php 
-              $products = $products ?? [];
-              $categories = $categories ?? [];
-              foreach ($products as $product): ?>
               <tr>
-                <td>
-                  <?php if (!empty($product['image_path'])): ?>
-                    <img src="<?= htmlspecialchars($product['image_path']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="img-thumbnail" style="max-width: 80px; max-height: 80px; object-fit: contain;">
-                  <?php else: ?>
-                    <span class="text-muted">Sem imagem</span>
-                  <?php endif; ?>
-                </td>
-                <td><?= htmlspecialchars($product['name']) ?></td>
-                <td><?= htmlspecialchars($categories[$product['category_id']] ?? 'Sem categoria') ?></td>
-                <td><?= htmlspecialchars($product['estoque'] ?? 0) ?></td>
-                <td>R$ <?= number_format((float)$product['price'], 2, ',', '.') ?></td>
+                <td>Modelo A</td>
+                <td>Esportivo</td>
+                <td>Preto</td>
+                <td>R$ 199,90</td>
               </tr>
-              <?php endforeach; ?>
-              <?php if (empty($products)): ?>
               <tr>
-                <td colspan="5" class="text-center text-muted">Nenhum produto cadastrado ainda.</td>
+                <td>Modelo B</td>
+                <td>Clássico</td>
+                <td>Azul</td>
+                <td>R$ 149,90</td>
               </tr>
-              <?php endif; ?>
+              <tr>
+                <td>Modelo C</td>
+                <td>Retrô</td>
+                <td>Marrom</td>
+                <td>R$ 179,90</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -126,40 +107,36 @@
       <div class="container">
         <h2 class="text-center mb-4">Promoções da Semana</h2>
         <div class="row">
-          <?php 
-          $featuredProducts = $featuredProducts ?? [];
-          $categories = $categories ?? [];
-          $displayProducts = array_slice($featuredProducts, 0, 6);
-          foreach ($displayProducts as $index => $product): 
-            $colClass = $index >= 3 ? 'd-none d-lg-block' : '';
-          ?>
-          <div class="col-md-6 col-lg-4 mb-4 <?= $colClass ?>">
+          <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100 shadow-sm">
-              <?php if (!empty($product['image_path'])): ?>
-                <img src="<?= htmlspecialchars($product['image_path']) ?>" class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" style="height: 250px; object-fit: contain; padding: 10px;">
-              <?php else: ?>
-                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
-                  <span class="text-white">Sem imagem</span>
-                </div>
-              <?php endif; ?>
-              <div class="card-body text-center d-flex flex-column">
-                <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
-                <p class="card-text text-muted small"><?= htmlspecialchars($categories[$product['category_id']] ?? 'Sem categoria') ?></p>
-                <p class="card-text fs-4 fw-bold text-success mt-auto">R$ <?= number_format((float)$product['price'], 2, ',', '.') ?></p>
-                <?php if (($product['estoque'] ?? 0) > 0): ?>
-                  <a href="#" class="btn btn-primary">Comprar Agora</a>
-                <?php else: ?>
-                  <button class="btn btn-secondary" disabled>Indisponível</button>
-                <?php endif; ?>
+              <img src="imagens/oculos 1.png" class="card-img-top" alt="Óculos Modelo D">
+              <div class="card-body text-center">
+                <h5 class="card-title">Modelo D</h5>
+                <p class="card-text fs-4 fw-bold text-success">R$ 129,90</p>
+                <a href="#" class="btn btn-primary">Comprar Agora</a>
               </div>
             </div>
           </div>
-          <?php endforeach; ?>
-          <?php if (empty($featuredProducts)): ?>
-          <div class="col-12 text-center text-muted">
-            <p>Nenhum produto em promoção no momento.</p>
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+              <img src="imagens/oculos 2.png" class="card-img-top" alt="Óculos Modelo E">
+              <div class="card-body text-center">
+                <h5 class="card-title">Modelo E</h5>
+                <p class="card-text fs-4 fw-bold text-success">R$ 159,90</p>
+                <a href="#" class="btn btn-primary">Comprar Agora</a>
+              </div>
+            </div>
           </div>
-          <?php endif; ?>
+          <div class="col-lg-4 mb-4 d-none d-lg-block">
+             <div class="card h-100 shadow-sm">
+              <img src="imagens/oculos 3.png" class="card-img-top" alt="Óculos Modelo F">
+              <div class="card-body text-center">
+                <h5 class="card-title">Modelo F</h5>
+                <p class="card-text fs-4 fw-bold text-success">R$ 189,90</p>
+                <a href="#" class="btn btn-primary">Comprar Agora</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -172,7 +149,7 @@
             <div class="card h-100">
               <div class="card-body">
                 <blockquote class="blockquote mb-0">
-                  <p>"Amei meu óculos novo! Qualidade excelente e entrega rápida."</p>
+                  <p>“Amei meu óculos novo! Qualidade excelente e entrega rápida.”</p>
                   <footer class="blockquote-footer">João S.</footer>
                 </blockquote>
               </div>
@@ -182,7 +159,7 @@
             <div class="card h-100">
               <div class="card-body">
                 <blockquote class="blockquote mb-0">
-                  <p>"Design incrível! Me sinto estilosa usando os modelos da Klaus Óculos."</p>
+                  <p>“Design incrível! Me sinto estilosa usando os modelos da Klaus Óculos.”</p>
                   <footer class="blockquote-footer">Maria L.</footer>
                 </blockquote>
               </div>
@@ -223,6 +200,7 @@
             <p class="mb-0 mt-3">&copy; 2025 Klaus Óculos. Todos os direitos reservados.</p>
         </div>
     </footer>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
