@@ -75,6 +75,48 @@ class OrderItemRepository
         $stmt = Database::getConnection()->prepare("DELETE FROM order_items WHERE order_id = ?");
         return $stmt->execute([$orderId]);
     }
+
+    public function findByProductId(int $productId): array
+    {
+        $stmt = Database::getConnection()->prepare("
+            SELECT oi.*, o.status as order_status, o.id as order_id
+            FROM order_items oi
+            INNER JOIN orders o ON oi.order_id = o.id
+            WHERE oi.product_id = ?
+            ORDER BY oi.id
+        ");
+        $stmt->execute([$productId]);
+        return $stmt->fetchAll();
+    }
+
+    public function findActiveOrdersByProductId(int $productId, ?array $excludeStatuses = null): array
+    {
+        $sql = "
+            SELECT DISTINCT o.id, o.status, o.order_date
+            FROM order_items oi
+            INNER JOIN orders o ON oi.order_id = o.id
+            WHERE oi.product_id = ?
+        ";
+        $params = [$productId];
+        
+        if ($excludeStatuses !== null && !empty($excludeStatuses)) {
+            $placeholders = implode(',', array_fill(0, count($excludeStatuses), '?'));
+            $sql .= " AND o.status NOT IN ($placeholders)";
+            $params = array_merge($params, $excludeStatuses);
+        }
+        
+        $sql .= " ORDER BY o.id DESC";
+        
+        $stmt = Database::getConnection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    public function deleteByProductId(int $productId): bool
+    {
+        $stmt = Database::getConnection()->prepare("DELETE FROM order_items WHERE product_id = ?");
+        return $stmt->execute([$productId]);
+    }
 }
 
 

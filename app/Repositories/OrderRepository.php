@@ -86,11 +86,9 @@ class OrderRepository
 
     public function delete(int $id): bool
     {
-        // Primeiro, deleta os itens do pedido
         $stmtItems = Database::getConnection()->prepare("DELETE FROM order_items WHERE order_id = ?");
         $stmtItems->execute([$id]);
         
-        // Depois, deleta o pedido
         $stmt = Database::getConnection()->prepare("DELETE FROM orders WHERE id = ?");
         return $stmt->execute([$id]);
     }
@@ -110,6 +108,40 @@ class OrderRepository
             $return[$order['id']] = $order['name'];
         }
         return $return;
+    }
+
+    public function countByClientId(int $clientId, ?array $excludeStatuses = null): int
+    {
+        $sql = "SELECT COUNT(*) FROM orders WHERE client_id = ?";
+        $params = [$clientId];
+        
+        if ($excludeStatuses !== null && !empty($excludeStatuses)) {
+            $placeholders = implode(',', array_fill(0, count($excludeStatuses), '?'));
+            $sql .= " AND status NOT IN ($placeholders)";
+            $params = array_merge($params, $excludeStatuses);
+        }
+        
+        $stmt = Database::getConnection()->prepare($sql);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public function findByClientId(int $clientId, ?array $excludeStatuses = null): array
+    {
+        $sql = "SELECT * FROM orders WHERE client_id = ?";
+        $params = [$clientId];
+        
+        if ($excludeStatuses !== null && !empty($excludeStatuses)) {
+            $placeholders = implode(',', array_fill(0, count($excludeStatuses), '?'));
+            $sql .= " AND status NOT IN ($placeholders)";
+            $params = array_merge($params, $excludeStatuses);
+        }
+        
+        $sql .= " ORDER BY id DESC";
+        
+        $stmt = Database::getConnection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 }
 

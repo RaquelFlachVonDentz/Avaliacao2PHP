@@ -7,6 +7,7 @@ use App\Core\Flash;
 use App\Core\Url;
 use App\Core\View;
 use App\Repositories\ClientRepository;
+use App\Repositories\OrderRepository;
 use App\Services\ClientService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,12 +18,14 @@ class ClientController
     private View $view;
     private ClientRepository $repo;
     private ClientService $service;
+    private OrderRepository $orderRepo;
 
     public function __construct()
     {
         $this->view = new View();
         $this->repo = new ClientRepository();
         $this->service = new ClientService();
+        $this->orderRepo = new OrderRepository();
     }
 
     public function index(Request $request): Response
@@ -142,12 +145,53 @@ class ClientController
             return new RedirectResponse(Url::to('admin/clients'));
         }
 
-        $deleted = $this->repo->delete($id);
+        $client = $this->repo->find($id);
+        if (!$client) {
+            Flash::push('danger', 'Cliente não encontrado.');
+            return new RedirectResponse(Url::to('admin/clients'));
+        }
 
-        if ($deleted) {
-            Flash::push('success', 'Cliente excluído com sucesso.');
-        } else {
-            Flash::push('danger', 'Falha ao excluir o cliente.');
+        // Verifica se há pedidos ativos (exceto entregues e cancelados)
+        $activeOrdersCount = $this->orderRepo->countByClientId($id, ['entregue', 'cancelado']);
+        
+        if ($activeOrdersCount > 0) {
+            $activeOrders = $this->orderRepo->findByClientId($id, ['entregue', 'cancelado']);
+            $orderNumbers = array_map(function($order) {
+                return '#' . $order['id'];
+            }, $activeOrders);
+            
+            Flash::push('danger', "Não é possível excluir o cliente '{$client['name']}' porque ele possui {$activeOrdersCount} pedido(s) ativo(s) (Pedidos: " . implode(', ', $orderNumbers) . "). Finalize ou cancele os pedidos antes de excluir o cliente.");
+            return new RedirectResponse(Url::to('admin/clients'));
+        }
+
+        // Se chegou aqui, só há pedidos entregues ou cancelados (ou não há pedidos)
+        // Busca todos os pedidos do cliente para excluí-los primeiro
+        $allOrders = $this->orderRepo->findByClientId($id);
+        
+        try {
+            // Exclui todos os pedidos do cliente (entregues e cancelados)
+            foreach ($allOrders as $order) {
+                $this->orderRepo->delete($order['id']);
+            }
+            
+            // Agora pode excluir o cliente
+            $deleted = $this->repo->delete($id);
+
+            if ($deleted) {
+                $message = 'Cliente excluído com sucesso.';
+                if (count($allOrders) > 0) {
+                    $message .= ' ' . count($allOrders) . ' pedido(s) entregue(s) ou cancelado(s) também foram excluído(s).';
+                }
+                Flash::push('success', $message);
+            } else {
+                Flash::push('danger', 'Falha ao excluir o cliente.');
+            }
+        } catch (\PDOException $e) {
+            if ($e->getCode() == 23000) {
+                Flash::push('danger', "Não é possível excluir o cliente '{$client['name']}' porque ele possui pedidos associados que não podem ser excluídos.");
+            } else {
+                Flash::push('danger', 'Erro ao excluir o cliente: ' . $e->getMessage());
+            }
         }
 
         return new RedirectResponse(Url::to('admin/clients'));

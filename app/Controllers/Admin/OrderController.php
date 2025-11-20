@@ -147,7 +147,6 @@ class OrderController
             return new Response($html, 422);
         }
 
-        // Busca o pedido atual antes de atualizar para verificar mudança de status
         $currentOrder = $this->repo->find((int)$data['id']);
         $oldStatus = $currentOrder['status'] ?? '';
         $newStatus = trim($data['status'] ?? '');
@@ -159,14 +158,11 @@ class OrderController
 
         $this->repo->update($order);
 
-        // Se o status mudou para "entregue" e não estava entregue antes, diminui o estoque
         if (strtolower($newStatus) === 'entregue' && strtolower($oldStatus) !== 'entregue') {
             $items = $this->itemRepo->findByOrderId($order->id);
             foreach ($items as $item) {
                 $productId = (int)$item['product_id'];
                 $quantity = (int)$item['quantity'];
-                
-                // Verifica se o produto existe e tem estoque suficiente
                 $product = $this->productRepo->find($productId);
                 if ($product) {
                     $currentStock = (int)($product['estoque'] ?? 0);
@@ -218,7 +214,6 @@ class OrderController
         $quantity = (int)$request->request->get('quantity', 0);
         $unitPrice = (float)$request->request->get('unit_price', 0);
 
-        // Validações básicas
         $errors = [];
         if ($orderId <= 0) {
             $errors[] = 'Pedido inválido';
@@ -230,7 +225,6 @@ class OrderController
             $errors[] = 'Quantidade deve ser maior que zero';
         }
 
-        // Se não forneceu preço ou é zero, busca do produto
         if ($unitPrice <= 0) {
             $product = $this->productRepo->find($productId);
             if ($product) {
@@ -240,7 +234,6 @@ class OrderController
             }
         }
 
-        // Valida preço final
         if ($unitPrice <= 0 && empty($errors)) {
             $errors[] = 'Preço unitário deve ser maior que zero';
         }
@@ -269,7 +262,6 @@ class OrderController
         $quantity = (int)$request->request->get('quantity', 0);
         $unitPrice = (float)$request->request->get('unit_price', 0);
 
-        // Validações
         $errors = [];
         if ($id <= 0) {
             $errors[] = 'Item inválido';

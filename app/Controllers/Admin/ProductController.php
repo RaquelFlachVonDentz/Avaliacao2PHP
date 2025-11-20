@@ -2,9 +2,11 @@
 namespace App\Controllers\Admin;
 
 use App\Core\Csrf;
+use App\Core\Flash;
 use App\Core\Url;
 use App\Core\View;
 use App\Repositories\CategoryRepository;
+use App\Repositories\OrderItemRepository;
 use App\Repositories\ProductRepository;
 use App\Services\ProductService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,12 +18,14 @@ class ProductController {
     private ProductRepository $repo;
     private ProductService $service;
     private CategoryRepository $categoryRepo;
+    private OrderItemRepository $orderItemRepo;
 
     public function __construct() {
         $this->view = new View();
         $this->repo = new ProductRepository();
         $this->service = new ProductService();
         $this->categoryRepo = new CategoryRepository();
+        $this->orderItemRepo = new OrderItemRepository();
     }
 
     public function index(Request $request): Response {
@@ -91,9 +95,65 @@ class ProductController {
     }
 
     public function delete(Request $request): Response {
-        if (!Csrf::validate($request->request->get('_csrf'))) return new Response('Token CSRF inválido', 419);
+        if (!Csrf::validate($request->request->get('_csrf'))) {
+            return new Response('Token CSRF inválido', 419);
+        }
+
         $id = (int)$request->request->get('id', 0);
-        if ($id > 0) $this->repo->delete($id);
+
+        if ($id <= 0) {
+            Flash::push('danger', 'ID inválido para exclusão');
+            return new RedirectResponse(Url::to('admin/products'));
+        }
+
+        $product = $this->repo->find($id);
+        if (!$product) {
+            Flash::push('danger', 'Produto não encontrado.');
+            return new RedirectResponse(Url::to('admin/products'));
+        }
+
+        // Verifica se há pedidos ativos usando este produto (exceto entregues e cancelados)
+        $activeOrders = $this->orderItemRepo->findActiveOrdersByProductId($id, ['entregue', 'cancelado']);
+        
+        if (!empty($activeOrders)) {
+            $orderNumbers = array_map(function($order) {
+                return '#' . $order['id'];
+            }, $activeOrders);
+            
+            Flash::push('danger', "Não é possível excluir o produto '{$product['name']}' porque ele está sendo usado em " . count($activeOrders) . " pedido(s) ativo(s) (Pedidos: " . implode(', ', $orderNumbers) . "). Finalize ou cancele os pedidos antes de excluir o produto.");
+            return new RedirectResponse(Url::to('admin/products'));
+        }
+
+        // Se chegou aqui, só há pedidos entregues ou cancelados usando o produto (ou não há pedidos)
+        // Busca todos os itens de pedido que usam este produto
+        $allOrderItems = $this->orderItemRepo->findByProductId($id);
+        
+        try {
+            // Exclui todos os itens de pedido que usam este produto
+            if (!empty($allOrderItems)) {
+                $this->orderItemRepo->deleteByProductId($id);
+            }
+            
+            // Agora pode excluir o produto
+            $deleted = $this->repo->delete($id);
+
+            if ($deleted) {
+                $message = 'Produto excluído com sucesso.';
+                if (count($allOrderItems) > 0) {
+                    $message .= ' ' . count($allOrderItems) . ' item(ns) de pedido(s) entregue(s) ou cancelado(s) também foram excluído(s).';
+                }
+                Flash::push('success', $message);
+            } else {
+                Flash::push('danger', 'Falha ao excluir o produto.');
+            }
+        } catch (\PDOException $e) {
+            if ($e->getCode() == 23000) {
+                Flash::push('danger', "Não é possível excluir o produto '{$product['name']}' porque ele está sendo usado em pedidos que não podem ser excluídos.");
+            } else {
+                Flash::push('danger', 'Erro ao excluir o produto: ' . $e->getMessage());
+            }
+        }
+
         return new RedirectResponse(Url::to('admin/products'));
     }
 }
